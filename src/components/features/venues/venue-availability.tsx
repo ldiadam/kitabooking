@@ -13,11 +13,24 @@ import type { Database } from '@/types/database'
 
 type TimeSlot = Database['public']['Tables']['venue_time_slots']['Row']
 type Reservation = Database['public']['Tables']['reservations']['Row']
-type Venue = Database['public']['Tables']['venues']['Row']
 
+// Accept venue with facilities as string array (transformed venue)
 interface VenueAvailabilityProps {
   venueId: string
-  venue?: Venue
+  venue?: {
+    id: string
+    name: string
+    venue_type_id: string | null
+    image_url: string | null
+    description: string | null
+    base_price: number
+    weekend_price: number | null
+    facilities: string[]
+    rules: string | null
+    is_active: boolean
+    created_at: string
+    updated_at: string
+  }
 }
 
 interface AvailabilitySlot extends TimeSlot {
@@ -185,7 +198,7 @@ export default function VenueAvailability({ venueId, venue }: VenueAvailabilityP
                   ? venue.weekend_price 
                   : venue?.base_price || 0
                 
-                const price = Math.round(basePrice * (slot.price_multiplier || 1))
+                const price = Math.round(basePrice * (isWeekend ? (slot.price_weekend || 1) : (slot.price_weekday || 1)))
                 
                 return (
                   <div
@@ -203,10 +216,18 @@ export default function VenueAvailability({ venueId, venue }: VenueAvailabilityP
                           </div>
                           <div className="text-sm opacity-75">
                             {formatCurrency(price)}
-                            {slot.price_multiplier !== 1 && (
-                              <span className="ml-1">
-                                ({slot.price_multiplier}x rate)
-                              </span>
+                            {isWeekend ? (
+                              slot.price_weekend !== 1 && (
+                                <span className="ml-1">
+                                  ({slot.price_weekend}x rate)
+                                </span>
+                              )
+                            ) : (
+                              slot.price_weekday !== 1 && (
+                                <span className="ml-1">
+                                  ({slot.price_weekday}x rate)
+                                </span>
+                              )
                             )}
                           </div>
                         </div>

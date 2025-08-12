@@ -30,9 +30,7 @@ type Reservation = Database['public']['Tables']['reservations']['Row'] & {
 }
 
 interface BookingConfirmationPageProps {
-  params: {
-    id: string
-  }
+  params: Promise<{ id: string }>;
 }
 
 async function getReservation(id: string): Promise<Reservation | null> {
@@ -178,18 +176,18 @@ function ReservationDetails({ reservation }: { reservation: Reservation }) {
                   <div className="text-sm space-y-1">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Base Price:</span>
-                      <span>{formatCurrency(reservation.base_price)}</span>
+                      <span>{formatCurrency(reservation.base_price || 0)}</span>
                     </div>
                     {reservation.discount_amount > 0 && (
                       <div className="flex justify-between text-green-600">
                         <span>Discount:</span>
-                        <span>-{formatCurrency(reservation.discount_amount)}</span>
+                        <span>-{formatCurrency(reservation.discount_amount || 0)}</span>
                       </div>
                     )}
                     <Separator />
                     <div className="flex justify-between font-semibold">
                       <span>Total:</span>
-                      <span>{formatCurrency(reservation.total_price)}</span>
+                      <span>{formatCurrency(reservation.total_price || 0)}</span>
                     </div>
                   </div>
                 </div>
@@ -313,6 +311,7 @@ function LoadingSkeleton() {
     </div>
   )
 }
+
 
 export default async function BookingConfirmationPage({ params }: BookingConfirmationPageProps) {
   const { id } = await params

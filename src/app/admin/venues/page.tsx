@@ -38,6 +38,20 @@ interface Venue {
   }
 }
 
+interface VenueFromDB {
+  id: string
+  name: string
+  description: string
+  image_url?: string
+  base_price: number
+  weekend_price: number
+  is_active: boolean
+  created_at: string
+  venue_type: {
+    name: string
+  }[] | null
+}
+
 interface VenueType {
   id: string
   name: string
@@ -93,7 +107,7 @@ async function getVenues(): Promise<Venue[]> {
   
   // Get reservation counts for each venue
   const venuesWithCounts = await Promise.all(
-    (data || []).map(async (venue) => {
+    (data || []).map(async (venue: VenueFromDB) => {
       const { count } = await supabase
         .from('reservations')
         .select('*', { count: 'exact', head: true })
@@ -108,7 +122,14 @@ async function getVenues(): Promise<Venue[]> {
     })
   )
   
-  return venuesWithCounts
+  return venuesWithCounts.map(venue => ({
+    ...venue,
+    venue_type: {
+      name: venue.venue_type && venue.venue_type.length > 0 
+        ? venue.venue_type[0].name 
+        : 'Unknown'
+    }
+  })) as Venue[]
 }
 
 async function getVenueTypes(): Promise<VenueType[]> {

@@ -25,8 +25,15 @@ import {
 import { formatCurrency } from '@/lib/utils'
 import type { Database } from '@/types/database'
 
-type Venue = Database['public']['Tables']['venues']['Row'] & {
+// Raw venue data from Supabase with facilities as string | null
+type VenueFromDB = Database['public']['Tables']['venues']['Row'] & {
   venue_types: Database['public']['Tables']['venue_types']['Row']
+}
+
+// Processed venue data with facilities as string array
+type Venue = Omit<Database['public']['Tables']['venues']['Row'], 'facilities'> & {
+  venue_types: Database['public']['Tables']['venue_types']['Row']
+  facilities: string[]
 }
 
 interface VenuePageProps {
@@ -57,7 +64,19 @@ async function getVenue(id: string): Promise<Venue | null> {
     return null
   }
 
-  return venue as Venue
+  if (!venue) return null
+
+  // Transform the venue data to handle facilities properly
+  const transformedVenue: Venue = {
+    ...venue,
+    facilities: venue.facilities ? 
+      (typeof venue.facilities === 'string' ? 
+        JSON.parse(venue.facilities) : 
+        venue.facilities) : 
+      []
+  }
+
+  return transformedVenue
 }
 
 export default async function VenuePage({ params }: VenuePageProps) {
@@ -69,7 +88,7 @@ export default async function VenuePage({ params }: VenuePageProps) {
   }
 
   const imageUrl = venue.image_url || '/images/venue-placeholder.jpg'
-  const facilityIcons: Record<string, any> = {
+  const facilityIcons: Record<string, typeof Wifi> = {
     'WiFi': Wifi,
     'Parking': Car,
     'Security': Shield,
@@ -94,24 +113,11 @@ export default async function VenuePage({ params }: VenuePageProps) {
           <div className="space-y-4">
             <div className="flex items-start justify-between">
               <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <Badge variant="secondary">{venue.venue_types.name}</Badge>
-                  {venue.is_featured && (
-                    <Badge className="bg-orange-500 text-white">
-                      <Star className="h-3 w-3 mr-1" />
-                      Featured
-                    </Badge>
-                  )}
-                </div>
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">{venue.name}</h1>
                 <div className="flex items-center gap-4 text-gray-600">
                   <div className="flex items-center gap-1">
                     <MapPin className="h-4 w-4" />
-                    <span>{venue.location || 'Orange Sport Center'}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Users className="h-4 w-4" />
-                    <span>Up to {venue.capacity} people</span>
+                    <span>Orange Sport Center</span>
                   </div>
                 </div>
               </div>

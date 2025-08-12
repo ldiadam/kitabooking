@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
+import type { Metadata } from 'next';
 import { cookies } from 'next/headers'
 import { notFound } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -281,26 +282,30 @@ async function EventDetail({ id }: { id: string }) {
   )
 }
 
-export default function EventDetailPage({ params }: { params: { id: string } }) {
+export default async function EventDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   return (
     <Suspense fallback={<EventDetailSkeleton />}>
-      <EventDetail id={params.id} />
+      <EventDetail id={id} />
     </Suspense>
   )
 }
 
-export async function generateMetadata({ params }: { params: { id: string } }) {
-  const event = await getEvent(params.id)
-  
+export async function generateMetadata(
+  { params }: { params: Promise<{ id: string }> }
+): Promise<Metadata> {
+  const { id } = await params;
+  const event = await getEvent(id);
+
   if (!event) {
     return {
       title: 'Event Not Found - Orange Sport Center',
-      description: 'The requested event could not be found.'
-    }
+      description: 'The requested event could not be found.',
+    };
   }
-  
+
   return {
     title: `${event.title} - Orange Sport Center`,
     description: event.description,
-  }
+  };
 }

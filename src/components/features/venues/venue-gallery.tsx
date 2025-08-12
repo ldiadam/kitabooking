@@ -146,7 +146,7 @@ export default function VenueGallery({ venueId }: VenueGalleryProps) {
                 onClick={() => openLightbox(index)}
               >
                 <Image
-                  src={photo.url}
+                  src={photo.image_url || '/placeholder-image.jpg'}
                   alt={photo.caption || `Venue photo ${index + 1}`}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-200"
@@ -194,7 +194,7 @@ export default function VenueGallery({ venueId }: VenueGalleryProps) {
             <>
               <div className="relative w-full h-full">
                 <Image
-                  src={photos[selectedPhoto].url}
+                  src={photos[selectedPhoto].image_url || '/placeholder-image.jpg'}
                   alt={photos[selectedPhoto].caption || `Photo ${selectedPhoto + 1}`}
                   fill
                   className="object-contain"

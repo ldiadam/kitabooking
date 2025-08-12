@@ -1,32 +1,17 @@
 import { Suspense } from 'react'
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
+import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import VenueFilters from '@/components/features/venues/venue-filters'
 import VenueList from '@/components/features/venues/venue-list'
 import { Skeleton } from '@/components/ui/skeleton'
+import type { Database } from '@/types/database'
 
-interface Venue {
-  id: string
-  name: string
-  description: string
-  image_url?: string
-  base_price: number
-  weekend_price: number
-  is_active: boolean
-  venue_type_id: string
-  venue_types: {
-    id: string
-    name: string
-    description: string
-  }
+// Use the database types directly
+type Venue = Database['public']['Tables']['venues']['Row'] & {
+  venue_types: Database['public']['Tables']['venue_types']['Row'] | null
 }
 
-interface VenueType {
-  id: string
-  name: string
-  description: string
-}
+type VenueType = Database['public']['Tables']['venue_types']['Row']
 
 interface VenuesPageProps {
   searchParams: Promise<{
@@ -37,8 +22,7 @@ interface VenuesPageProps {
 }
 
 async function getVenues(searchParams: Awaited<VenuesPageProps['searchParams']>): Promise<Venue[]> {
-  const cookieStore = await cookies()
-  const supabase = createServerComponentClient({ cookies: () => cookieStore })
+  const supabase = await createClient()
   
   let query = supabase
     .from('venues')
@@ -90,12 +74,11 @@ async function getVenues(searchParams: Awaited<VenuesPageProps['searchParams']>)
     return []
   }
 
-  return venues || []
+  return (venues as unknown as Venue[]) || []
 }
 
 async function getVenueTypes(): Promise<VenueType[]> {
-  const cookieStore = await cookies()
-  const supabase = createServerComponentClient({ cookies: () => cookieStore })
+  const supabase = await createClient()
   
   const { data: venueTypes, error } = await supabase
     .from('venue_types')
@@ -107,7 +90,7 @@ async function getVenueTypes(): Promise<VenueType[]> {
     return []
   }
 
-  return venueTypes || []
+  return (venueTypes as VenueType[]) || []
 }
 
 function VenuesSkeleton() {

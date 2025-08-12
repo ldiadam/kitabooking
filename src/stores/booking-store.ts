@@ -69,7 +69,7 @@ export const useBookingStore = create<BookingState>((set, get) => ({
       ? selectedTimeSlot.price_weekend 
       : selectedTimeSlot.price_weekday
     
-    set({ totalPrice: price })
+    set({ totalPrice: price || 0 })
   },
   calculateDuration: () => {
     const { selectedTimeSlot } = get()

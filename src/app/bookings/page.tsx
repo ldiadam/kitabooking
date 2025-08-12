@@ -243,7 +243,7 @@ async function ReservationsContent() {
           No reservations yet
         </h3>
         <p className="text-gray-600 mb-6">
-          You haven't made any bookings yet. Start by exploring our venues!
+          You havent made any bookings yet. Start by exploring our venues!
         </p>
         <Button asChild>
           <Link href="/venues">

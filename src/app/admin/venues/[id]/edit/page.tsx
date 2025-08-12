@@ -197,7 +197,7 @@ export default function EditVenuePage({ params }: EditVenuePageProps) {
           <CardContent className="text-center py-12">
             <h3 className="text-lg font-semibold mb-2">Venue not found</h3>
             <p className="text-muted-foreground mb-4">
-              The venue you're looking for doesn't exist or has been deleted.
+              The venue youre looking for doesnt exist or has been deleted.
             </p>
             <Button asChild>
               <Link href="/admin/venues">
@@ -430,7 +430,7 @@ export default function EditVenuePage({ params }: EditVenuePageProps) {
           <PricingMatrix
             venueId={venue.id}
             basePrice={venue.base_price}
-            weekendPrice={venue.weekend_price}
+            weekendPrice={venue.weekend_price === null ? undefined : venue.weekend_price}
             onPricingUpdate={() => {
               // Optionally refresh venue data or show success message
             }}

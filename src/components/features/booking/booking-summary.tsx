@@ -17,9 +17,16 @@ import { format } from 'date-fns'
 import { formatCurrency } from '@/lib/utils'
 
 export default function BookingSummary() {
-  const { bookingData } = useBookingStore()
+  const { 
+    selectedVenue, 
+    selectedDate, 
+    selectedTimeSlot, 
+    notes, 
+    totalPrice,
+    duration 
+  } = useBookingStore()
 
-  if (!bookingData) {
+  if (!selectedVenue || !selectedDate || !selectedTimeSlot) {
     return (
       <Card>
         <CardHeader>
@@ -38,29 +45,16 @@ export default function BookingSummary() {
     )
   }
 
-  const { venue, date, startTime, endTime, notes } = bookingData
+  const venue = selectedVenue
+  const date = selectedDate
+  const startTime = selectedTimeSlot.start_time
+  const endTime = selectedTimeSlot.end_time
   
-  // Calculate duration
-  const start = new Date(`2000-01-01T${startTime}`)
-  const end = new Date(`2000-01-01T${endTime}`)
-  const duration = (end.getTime() - start.getTime()) / (1000 * 60 * 60)
-  
-  // Calculate price with proper weekend/weekday and time slot logic
-  const selectedDate = new Date(date)
-  const isWeekend = selectedDate.getDay() === 0 || selectedDate.getDay() === 6
-  
-  // Get base price (weekend or weekday)
-  const basePrice = isWeekend && venue.weekend_price 
-    ? venue.weekend_price 
-    : venue.base_price
-  
-  // For now, use default multiplier of 1.0 since we don't have time slot data here
-  // In a real implementation, you'd fetch the time slot multiplier
-  const priceMultiplier = 1.0
-  const hourlyRate = basePrice * priceMultiplier
-  const totalPrice = hourlyRate * duration
+  // Use duration from store (already calculated)
+  // Use totalPrice from store (already calculated)
   const tax = totalPrice * 0.1 // 10% tax
   const finalPrice = totalPrice + tax
+  const hourlyRate = duration > 0 ? totalPrice / duration : 0
 
   return (
     <Card className="sticky top-6">
@@ -79,17 +73,19 @@ export default function BookingSummary() {
             </div>
             <div className="flex-1">
               <h3 className="font-semibold text-gray-900">{venue.name}</h3>
-              <p className="text-sm text-gray-600">{venue.location || 'Orange Sport Center'}</p>
-              <Badge variant="outline" className="mt-1">
-                {venue.venue_types.name}
-              </Badge>
+              <p className="text-sm text-gray-600">Orange Sport Center</p>
+              {venue.description && (
+                <p className="text-xs text-gray-500 mt-1">{venue.description}</p>
+              )}
             </div>
           </div>
           
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Users className="h-4 w-4" />
-            <span>Capacity: {venue.capacity} people</span>
-          </div>
+          {venue.facilities && (
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <Users className="h-4 w-4" />
+              <span>Facilities: {venue.facilities}</span>
+            </div>
+          )}
         </div>
 
         <Separator />

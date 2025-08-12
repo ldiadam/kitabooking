@@ -9,19 +9,9 @@ import { MapPin, Clock, Users, Star } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import type { Database } from '@/types/database'
 
-interface Venue {
-  id: string
-  name: string
-  description: string | null
-  image_url: string | null
-  base_price: number
-  weekend_price: number
-  is_active: boolean
-  venue_types: {
-    id: string
-    name: string
-    description: string | null
-  } | null
+// Use the database types directly
+type Venue = Database['public']['Tables']['venues']['Row'] & {
+  venue_types: Database['public']['Tables']['venue_types']['Row'] | null
 }
 
 interface VenueListProps {
@@ -65,7 +55,7 @@ export default function VenueList({ venues }: VenueListProps) {
 
 function VenueCard({ venue }: { venue: Venue }) {
   const imageUrl = venue.image_url || '/images/venue-placeholder.jpg'
-  const minPrice = Math.min(venue.base_price, venue.weekend_price)
+  const minPrice = Math.min(venue.base_price, venue.weekend_price || venue.base_price)
   
   return (
     <Card className="group hover:shadow-lg transition-shadow duration-200">
@@ -122,7 +112,7 @@ function VenueCard({ venue }: { venue: Venue }) {
                 {formatCurrency(minPrice)}
                 <span className="text-sm text-gray-500 font-normal">/hour</span>
               </div>
-              {venue.base_price !== venue.weekend_price && (
+              {venue.weekend_price && venue.base_price !== venue.weekend_price && (
                 <div className="text-xs text-gray-500">
                   Weekday: {formatCurrency(venue.base_price)} | Weekend: {formatCurrency(venue.weekend_price)}
                 </div>

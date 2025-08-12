@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -81,29 +81,7 @@ export default function BookingForm({
   const watchedDate = form.watch('date')
   const watchedStartTime = form.watch('startTime')
 
-  // Fetch time slots when venue or date changes
-  useEffect(() => {
-    if (watchedVenueId && watchedDate) {
-      fetchTimeSlots()
-    }
-  }, [watchedVenueId, watchedDate])
-
-  // Update booking store when form values change
-  useEffect(() => {
-    const subscription = form.watch((values) => {
-      if (values.venueId && values.date) {
-        const venue = venues.find(v => v.id === values.venueId)
-        if (venue) {
-          setSelectedVenue(venue)
-          setSelectedDate(values.date)
-          setNotes(values.notes || '')
-        }
-      }
-    })
-    return () => subscription.unsubscribe()
-  }, [form, venues, setSelectedVenue, setSelectedDate, setNotes])
-
-  const fetchTimeSlots = async () => {
+  const fetchTimeSlots = useCallback(async () => {
     setLoading(true)
     try {
       const { data: slots, error: slotsError } = await supabase
@@ -158,7 +136,29 @@ export default function BookingForm({
     } finally {
       setLoading(false)
     }
-  }
+  }, [watchedVenueId, watchedDate, supabase])
+
+  // Fetch time slots when venue or date changes
+  useEffect(() => {
+    if (watchedVenueId && watchedDate) {
+      fetchTimeSlots()
+    }
+  }, [watchedVenueId, watchedDate, fetchTimeSlots])
+
+  // Update booking store when form values change
+  useEffect(() => {
+    const subscription = form.watch((values) => {
+      if (values.venueId && values.date) {
+        const venue = venues.find(v => v.id === values.venueId)
+        if (venue) {
+          setSelectedVenue(venue)
+          setSelectedDate(values.date)
+          setNotes(values.notes || '')
+        }
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [form, venues, setSelectedVenue, setSelectedDate, setNotes])
 
   const getEndTimeOptions = (startTime: string) => {
     if (!startTime) return []
@@ -233,7 +233,7 @@ export default function BookingForm({
       : venue.base_price
     
     // Apply time slot multiplier
-    const pricePerHour = basePrice * (startSlot.price_multiplier || 1)
+    const pricePerHour = basePrice * (isWeekend ? (startSlot.price_weekend || 1) : (startSlot.price_weekday || 1))
     return Math.round(pricePerHour * duration)
   }
 
@@ -349,11 +349,7 @@ export default function BookingForm({
                     <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
                       <div className="flex items-center gap-1">
                         <MapPin className="h-3 w-3" />
-                        <span>{selectedVenueData.location || 'Orange Sport Center'}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Users className="h-3 w-3" />
-                        <span>Up to {selectedVenueData.capacity} people</span>
+                        <span>Orange Sport Center</span>
                       </div>
                     </div>
                   </div>
@@ -427,7 +423,7 @@ export default function BookingForm({
                                       const selectedDate = new Date(watchedDate)
                                       const isWeekend = selectedDate.getDay() === 0 || selectedDate.getDay() === 6
                                       const basePrice = isWeekend && venue.weekend_price ? venue.weekend_price : venue.base_price
-                                      const hourlyRate = basePrice * (slot.price_multiplier || 1)
+                                      const hourlyRate = basePrice * (isWeekend ? (slot.price_weekend || 1) : (slot.price_weekday || 1))
                                       return (
                                         <span className="text-xs text-gray-500 ml-2">
                                           {formatCurrency(hourlyRate)}/hr

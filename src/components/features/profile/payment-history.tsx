@@ -150,7 +150,7 @@ function PaymentCard({ payment }: { payment: Payment }) {
                     </div>
                     <div className="flex justify-between">
                       <span>Status:</span>
-                      <Badge className={getStatusColor(payment.payment_status)} size="sm">
+                      <Badge className={getStatusColor(payment.payment_status)}>
                         {payment.payment_status}
                       </Badge>
                     </div>
@@ -355,7 +355,7 @@ export default function PaymentHistory({ userId }: PaymentHistoryProps) {
         <CreditCard className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
         <h3 className="text-lg font-semibold mb-2">No payment history</h3>
         <p className="text-muted-foreground mb-4">
-          You haven't made any payments yet.
+          You have not made any payments yet.
         </p>
         <Button asChild>
           <a href="/venues">Make a Booking</a>
