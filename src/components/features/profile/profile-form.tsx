@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -47,7 +47,7 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
   const [success, setSuccess] = useState<string | null>(null)
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url)
   const router = useRouter()
-  const supabase = createClientComponentClient()
+  const supabase = createClient()
   
   const {
     register,

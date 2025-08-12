@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@/lib/supabase/client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -54,7 +54,7 @@ interface ReservationHistoryProps {
 
 function ReservationCard({ reservation }: { reservation: Reservation }) {
   const [isCancelling, setIsCancelling] = useState(false)
-  const supabase = createClientComponentClient()
+  const supabase = createClient()
   
   const reservationDate = new Date(reservation.reservation_date)
   const canCancel = reservation.status === 'pending' || reservation.status === 'confirmed'
@@ -269,7 +269,7 @@ export default function ReservationHistory({ userId }: ReservationHistoryProps) 
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const supabase = createClientComponentClient()
+  const supabase = createClient()
   
   useEffect(() => {
     async function fetchReservations() {
