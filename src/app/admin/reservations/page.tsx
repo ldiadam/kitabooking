@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
-import { cookies } from 'next/headers'
+//import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -18,12 +19,12 @@ import {
   Clock,
   AlertCircle,
   User,
-  MapPin,
+  //MapPin,
   DollarSign,
   Phone,
   Mail
 } from 'lucide-react'
-import Link from 'next/link'
+//import Link from 'next/link'
 
 interface Reservation {
   id: string

@@ -5,11 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+//import { Alert, AlertDescription } from '@/components/ui/alert'
 import { 
   Calendar, 
   Clock, 
-  MapPin, 
+  //MapPin, 
   CreditCard, 
   FileText,
   Eye,
@@ -255,7 +255,7 @@ async function ReservationsContent() {
   }
   
   const confirmedCount = reservations.filter(r => r.status === 'confirmed').length
-  const pendingCount = reservations.filter(r => r.status === 'pending').length
+  //const pendingCount = reservations.filter(r => r.status === 'pending').length
   const totalSpent = reservations
     .filter(r => r.status === 'confirmed')
     .reduce((sum, r) => sum + (r.total_price || 0), 0)

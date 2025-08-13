@@ -88,6 +88,7 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
       const fileName = `${profile.id}-${Date.now()}.${fileExt}`
       
       // Upload to Supabase Storage
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(fileName, file, {

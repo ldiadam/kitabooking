@@ -17,7 +17,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+//import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 interface Payment {
   id: string
@@ -38,7 +38,7 @@ interface Payment {
     }
   }
 }
-
+/*
 interface FinancialTransaction {
   id: string
   transaction_type: 'income' | 'expense'
@@ -48,7 +48,7 @@ interface FinancialTransaction {
   payment_method?: string
   created_at: string
 }
-
+*/
 interface PaymentHistoryProps {
   userId: string
 }

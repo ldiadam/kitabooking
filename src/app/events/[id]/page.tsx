@@ -1,14 +1,15 @@
 import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
-import { cookies } from 'next/headers'
+//import { cookies } from 'next/headers'
 import { notFound } from 'next/navigation'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { CalendarDays, MapPin, Users, Clock, DollarSign, Info } from 'lucide-react'
 import Link from 'next/link'
 import { Skeleton } from '@/components/ui/skeleton'
+import Image from 'next/image'
 
 interface Event {
   id: string
@@ -31,18 +32,18 @@ interface Event {
 
 async function getEvent(id: string): Promise<Event | null> {
   const supabase = await createClient()
-  
+
   const { data: event, error } = await supabase
     .from('events')
     .select('*')
     .eq('id', id)
     .single()
-  
+
   if (error) {
     console.error('Error fetching event:', error)
     return null
   }
-  
+
   return event
 }
 
@@ -67,28 +68,30 @@ function EventDetailSkeleton() {
 
 async function EventDetail({ id }: { id: string }) {
   const event = await getEvent(id)
-  
+
   if (!event) {
     notFound()
   }
-  
+
   const eventDate = new Date(event.event_date)
   const isRegistrationOpen = event.current_participants < event.max_participants && event.status === 'upcoming'
   const spotsLeft = event.max_participants - event.current_participants
-  
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
         {/* Hero Section */}
         {event.image_url && (
           <div className="aspect-video relative overflow-hidden rounded-lg mb-8">
-            <img
+            <Image
               src={event.image_url}
               alt={event.title}
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 50vw"
             />
             <div className="absolute top-4 right-4">
-              <Badge 
+              <Badge
                 variant={event.status === 'upcoming' ? 'default' : 'secondary'}
                 className="text-sm"
               >
@@ -97,7 +100,7 @@ async function EventDetail({ id }: { id: string }) {
             </div>
           </div>
         )}
-        
+
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-4">{event.title}</h1>
@@ -105,7 +108,7 @@ async function EventDetail({ id }: { id: string }) {
             {event.description}
           </p>
         </div>
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
@@ -133,7 +136,7 @@ async function EventDetail({ id }: { id: string }) {
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-3">
                     <Clock className="h-5 w-5 text-muted-foreground" />
                     <div>
@@ -143,7 +146,7 @@ async function EventDetail({ id }: { id: string }) {
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-3">
                     <MapPin className="h-5 w-5 text-muted-foreground" />
                     <div>
@@ -151,14 +154,14 @@ async function EventDetail({ id }: { id: string }) {
                       <p className="text-sm text-muted-foreground">{event.location}</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-3">
                     <DollarSign className="h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="font-medium">Registration Fee</p>
                       <p className="text-sm text-muted-foreground">
-                        {event.registration_fee > 0 
-                          ? `Rp ${event.registration_fee.toLocaleString()}` 
+                        {event.registration_fee > 0
+                          ? `Rp ${event.registration_fee.toLocaleString()}`
                           : 'Free'
                         }
                       </p>
@@ -167,7 +170,7 @@ async function EventDetail({ id }: { id: string }) {
                 </div>
               </CardContent>
             </Card>
-            
+
             {/* Rules & Requirements */}
             {(event.rules || event.requirements) && (
               <Card>
@@ -183,7 +186,7 @@ async function EventDetail({ id }: { id: string }) {
                       </div>
                     </div>
                   )}
-                  
+
                   {event.requirements && (
                     <div>
                       <h4 className="font-medium mb-2">Requirements</h4>
@@ -195,7 +198,7 @@ async function EventDetail({ id }: { id: string }) {
                 </CardContent>
               </Card>
             )}
-            
+
             {/* Contact Information */}
             {event.contact_info && (
               <Card>
@@ -210,7 +213,7 @@ async function EventDetail({ id }: { id: string }) {
               </Card>
             )}
           </div>
-          
+
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Registration Card */}
@@ -228,33 +231,33 @@ async function EventDetail({ id }: { id: string }) {
                   </div>
                   <p className="text-sm text-muted-foreground">Participants</p>
                 </div>
-                
+
                 <div className="w-full bg-secondary rounded-full h-2">
-                  <div 
+                  <div
                     className="bg-primary h-2 rounded-full transition-all"
-                    style={{ 
-                      width: `${(event.current_participants / event.max_participants) * 100}%` 
+                    style={{
+                      width: `${(event.current_participants / event.max_participants) * 100}%`
                     }}
                   />
                 </div>
-                
+
                 {spotsLeft > 0 && spotsLeft <= 5 && (
                   <p className="text-sm text-orange-600 font-medium text-center">
                     Only {spotsLeft} spots left!
                   </p>
                 )}
-                
+
                 <Separator />
-                
+
                 <div className="text-center">
                   <div className="text-lg font-semibold mb-2">
-                    {event.registration_fee > 0 
-                      ? `Rp ${event.registration_fee.toLocaleString()}` 
+                    {event.registration_fee > 0
+                      ? `Rp ${event.registration_fee.toLocaleString()}`
                       : 'Free Registration'
                     }
                   </div>
-                  
-                  <Button 
+
+                  <Button
                     className="w-full"
                     disabled={!isRegistrationOpen}
                     asChild={isRegistrationOpen}
@@ -266,8 +269,8 @@ async function EventDetail({ id }: { id: string }) {
                     ) : (
                       <span>
                         {event.status === 'completed' ? 'Event Completed' :
-                         event.status === 'cancelled' ? 'Event Cancelled' :
-                         spotsLeft === 0 ? 'Registration Full' : 'Registration Closed'}
+                          event.status === 'cancelled' ? 'Event Cancelled' :
+                            spotsLeft === 0 ? 'Registration Full' : 'Registration Closed'}
                       </span>
                     )}
                   </Button>
@@ -293,14 +296,14 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const event = await getEvent(id)
-  
+
   if (!event) {
     return {
       title: 'Event Not Found - Orange Sport Center',
       description: 'The requested event could not be found.'
     }
   }
-  
+
   return {
     title: `${event.title} - Orange Sport Center`,
     description: event.description,
